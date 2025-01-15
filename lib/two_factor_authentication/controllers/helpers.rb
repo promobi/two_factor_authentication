@@ -12,10 +12,24 @@ module TwoFactorAuthentication
       def handle_two_factor_authentication
         unless devise_controller?
           Devise.mappings.keys.flatten.any? do |scope|
-            if signed_in?(scope) and warden.session(scope)[TwoFactorAuthentication::NEED_AUTHENTICATION]
+            if scope == :user && current_user && !current_user.two_factor_enabled? && current_user.sign_up_sf_account_first_time?
+              handle_two_factor_configuration(scope)
+            elsif signed_in?(scope) and warden.session(scope)[TwoFactorAuthentication::NEED_AUTHENTICATION]
               handle_failed_second_factor(scope)
             end
           end
+        end
+      end
+
+      def handle_two_factor_configuration(scope)
+        if request.format.present?
+          if request.format.html?
+            redirect_to configure_two_factor_auth_methods_path
+          elsif request.format.json?
+            render json: { redirect_to: configure_two_factor_auth_methods_path }, status: :unauthorized
+          end
+        else
+          head :unauthorized
         end
       end
 
