@@ -32,9 +32,8 @@ module TwoFactorAuthentication
       end
 
       def restrict_2fa_bypass?(scope)
-        ENV['ENFORCE_2FA_AT_SIGNUP'] == 'true' && scope == :user &&
-        request.original_fullpath == user_two_factor_authentication_path &&
-        current_user && !current_user.two_factor_enabled?
+        enforce_2fa_at_signup?(scope) &&
+        request.original_fullpath == user_two_factor_authentication_path
       end
 
       def handle_two_factor_configuration(scope)
