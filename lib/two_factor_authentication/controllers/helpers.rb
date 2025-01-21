@@ -12,15 +12,29 @@ module TwoFactorAuthentication
       def handle_two_factor_authentication
         Devise.mappings.keys.flatten.any? do |scope|
           if !devise_controller?
-            if ENV['ENFORCE_2FA_AT_SIGNUP'] == 'true' && scope == :user && current_user && !current_user.two_factor_enabled? && current_user.sign_up_sf_account_first_time? && !warden.session(scope)[:skip_two_factor_verification]
+            if enforce_2fa_at_signup?(scope)
               handle_two_factor_configuration(scope)
             elsif signed_in?(scope) and warden.session(scope)[TwoFactorAuthentication::NEED_AUTHENTICATION]
               handle_failed_second_factor(scope)
             end
-          elsif ENV['ENFORCE_2FA_AT_SIGNUP'] == 'true' && scope == :user && request.original_fullpath == user_two_factor_authentication_path && current_user && !current_user.two_factor_enabled?
+          elsif restrict_2fa_bypass?(scope)
             handle_two_factor_configuration(scope)
           end
         end
+      end
+
+      def enforce_2fa_at_signup?(scope)
+        ENV['ENFORCE_2FA_AT_SIGNUP'] == 'true' &&
+        scope == :user && current_user &&
+        !current_user.two_factor_enabled? &&
+        current_user.sign_up_sf_account_first_time? &&
+        !warden.session(scope)[:skip_two_factor_verification]
+      end
+
+      def restrict_2fa_bypass?(scope)
+        ENV['ENFORCE_2FA_AT_SIGNUP'] == 'true' && scope == :user &&
+        request.original_fullpath == user_two_factor_authentication_path &&
+        current_user && !current_user.two_factor_enabled?
       end
 
       def handle_two_factor_configuration(scope)
