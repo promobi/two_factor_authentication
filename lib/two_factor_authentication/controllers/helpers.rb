@@ -25,7 +25,7 @@ module TwoFactorAuthentication
 
       def enforce_2fa_at_signup?(scope)
         ENV['ENFORCE_2FA_AT_SIGNUP'] == 'true' &&
-        scope == :user && current_user &&
+        scope == :user && current_user && current_user.user? &&
         !current_user.two_factor_enabled? &&
         current_user.sign_up_sf_account_first_time? &&
         !warden.session(scope)[:skip_two_factor_verification]
