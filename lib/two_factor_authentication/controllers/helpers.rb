@@ -12,7 +12,7 @@ module TwoFactorAuthentication
       def handle_two_factor_authentication
         Devise.mappings.keys.flatten.any? do |scope|
           if !devise_controller?
-            if enforce_2fa_at_signup?(scope)
+            if signed_in?(scope) && enforce_2fa_at_signup?(scope) && warden.session(scope).key?('need_two_factor_authentication')
               handle_two_factor_configuration(scope)
             elsif signed_in?(scope) and warden.session(scope)[TwoFactorAuthentication::NEED_AUTHENTICATION]
               handle_failed_second_factor(scope)
