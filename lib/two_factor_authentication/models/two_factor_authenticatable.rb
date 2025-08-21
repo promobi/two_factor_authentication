@@ -99,6 +99,9 @@ module Devise
         end
 
         def create_direct_otp(options = {})
+          # Do not generate new OTP with in cooling period
+          return if direct_otp.present? && direct_otp_sent_at.present? && direct_otp_sent_at > self.class.direct_otp_valid_for.seconds.ago
+
           # Create a new random OTP and store it in the database
           digits = options[:length] || self.class.direct_otp_length || 6
           update(
