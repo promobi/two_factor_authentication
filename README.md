@@ -98,6 +98,7 @@ config.remember_otp_session_for_seconds = 30.days  # Time before browser has to 
 config.otp_secret_encryption_key = ENV['OTP_SECRET_ENCRYPTION_KEY']
 config.second_factor_resource_id = 'id' # Field or method name used to set value for 2fA remember cookie
 config.delete_cookie_on_logout = false # Delete cookie when user signs out, to force 2fA again on login
+config.generate_new_otp_after_seconds = 30 # Cooling period before generating new OTP to avoid multiple OTPs
 ```
 The `otp_secret_encryption_key` must be a random key that is not stored in the
 DB, and is not checked in to your repo. It is recommended to store it in an

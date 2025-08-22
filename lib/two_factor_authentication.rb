@@ -32,6 +32,9 @@ module Devise
 
   mattr_accessor :delete_cookie_on_logout
   @@delete_cookie_on_logout = false
+
+  mattr_accessor :generate_new_otp_after_seconds
+  @@generate_new_otp_after_seconds = 30
 end
 
 module TwoFactorAuthentication
